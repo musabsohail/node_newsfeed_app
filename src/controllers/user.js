@@ -60,7 +60,7 @@ const getUsers = (req, res) => {
 const getUserById = (req, res) => {
   User.findById(req.params.userId)
     .then((doc) => {
-      if (!doc) return res.status(200).json({});
+      if (!doc) return res.status(400).json({});
 
       const response = {
         data: [
@@ -157,10 +157,12 @@ const createPost = (req, res) => {
   Post.create({
     user: userId,
     ...req.body,
-  }).then((doc) => {
-    cacheStore
-      .set(`user.${userId}.posts`, "")
-      .then(() => {
+  })
+    .then((doc) => {
+      Promise.all([
+        cacheStore.set(`posts`, ""),
+        cacheStore.set(`user.${userId}.posts`, ""),
+      ]).finally(() => {
         return res.status(201).json({
           data: [
             {
@@ -168,13 +170,13 @@ const createPost = (req, res) => {
             },
           ],
         });
+      });
+    })
+    .catch(({ message }) =>
+      res.status(500).json({
+        message,
       })
-      .catch((error) =>
-        res.status(500).json({
-          message: error.message,
-        })
-      );
-  });
+    );
 };
 
 const getPosts = (req, res) => {
