@@ -7,56 +7,58 @@ const router = express.Router();
 
 // middleware cache
 const usersCache = (req, res, next) => {
-  cacheStore.get(`users`, (err, data) => {
-    if (err) {
-      return res.status(500).json({
+  cacheStore
+    .get(`users`)
+    .then((data) => {
+      if (data) {
+        return res.status(200).json(JSON.parse(data));
+      } else {
+        return next();
+      }
+    })
+    .catch((err) =>
+      res.status(500).json({
         message: err.message,
-      });
-    }
-
-    if (data !== null) {
-      return res.status(200).json(JSON(data));
-    } else {
-      return next();
-    }
-  });
+      })
+    );
 };
 
 const userDataCache = (req, res, next) => {
   const userId = req.params.userId;
 
-  cacheStore.get(`user.${userId}`, (err, data) => {
-    if (err) {
-      return res.status(500).json({
+  cacheStore
+    .get(`user.${userId}`)
+    .then((data) => {
+      if (data) {
+        return res.status(200).json(JSON.parse(data));
+      } else {
+        next();
+      }
+    })
+    .catch((err) =>
+      res.status(500).json({
         message: err.message,
-      });
-    }
-    if (data !== null) {
-      return res.status(200).json(JSON(data));
-    } else {
-      next();
-    }
-  });
+      })
+    );
 };
 
 const userPostCache = (req, res, next) => {
   const userId = req.params.userId;
 
-  // console.log(cacheStore);
-
-  cacheStore.get(`user.${userId}.posts`, (err, data) => {
-    if (err) {
-      return res.status(500).json({
+  cacheStore
+    .get(`user.${userId}.posts`)
+    .then((data) => {
+      if (data) {
+        return res.status(200).json(JSON.parse(data));
+      } else {
+        next();
+      }
+    })
+    .catch((err) =>
+      res.status(500).json({
         message: err.message,
-      });
-    }
-    if (data !== null) {
-      // console.log("Cache return");
-      return res.status(200).json(JSON(data));
-    } else {
-      next();
-    }
-  });
+      })
+    );
 };
 
 router

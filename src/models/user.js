@@ -20,7 +20,7 @@ const userSchema = mongoose.Schema({
   },
 });
 
-userSchema.statics.isUserExists = async function (findByKey, value) {
+userSchema.statics.isUserEmail = async function (findByKey, value) {
   const user = await this.findOne({ [findByKey]: value });
   return !!user;
 };
